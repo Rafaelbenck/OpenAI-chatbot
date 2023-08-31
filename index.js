@@ -1,22 +1,6 @@
-import axios from 'axios';
-import openai from './config/open-ai.js';
 import readlineSync from 'readline-sync';
 import colors from 'colors';
-
-const makeRequestWithDelay = async (data) => {
-  try {
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openai}`,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.log(error.message);
-  }
-};
+import openai from './config/open-ai.js';
 
 (async () => {
   try {
@@ -32,7 +16,7 @@ const makeRequestWithDelay = async (data) => {
       messages.push({ role: 'user', content: userInput });  
     }
 
-    const completion = await makeRequestWithDelay({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: messages,
     });
