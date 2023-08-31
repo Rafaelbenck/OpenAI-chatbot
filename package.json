@@ -10,6 +10,7 @@
   "author": "Rafael Benck",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.5.0",
     "colors": "^1.4.0",
     "dotenv": "^16.3.1",
     "openai": "^3.3.0",

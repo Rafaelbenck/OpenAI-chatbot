@@ -1,48 +1,47 @@
+import axios from 'axios';
 import openai from './config/open-ai.js';
 import readlineSync from 'readline-sync';
 import colors from 'colors';
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function makeRequestWithDelay(params, delayTime) {
+const makeRequestWithDelay = async (data) => {
   try {
-    await delay(delayTime);
-    const response = await openai.createChatCompletion(params);
-    return response;
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openai}`,
+      },
+    });
+
+    return response.data;
   } catch (error) {
-    throw error;
+    console.log(error.message);
   }
-}
+};
 
-async function main() {
-  const messages = [];
+(async () => {
+  try {
+    const messages = [];
 
-  while (true) {
-    const userInput = readlineSync.question(colors.bold.yellow('You: '));
-    
-    if (userInput.toLowerCase() === 'exit') {
-      console.log('Exiting the chatbot...');
-      break;
+    while (true) {
+      const userInput = readlineSync.question(colors.bold.yellow('You: '));
+      
+      if (userInput.toLowerCase() === 'exit') {
+        console.log('Exiting the chatbot...');
+        break;
+      }
+      messages.push({ role: 'user', content: userInput });  
     }
-    messages.push({ role: 'user', content: userInput });
 
-    try {
-      const completion = await makeRequestWithDelay(
-        {
-          model: 'gpt-3.5-turbo',
-          messages: messages,
-        },
-        1000
-      );
+    const completion = await makeRequestWithDelay({
+      model: 'gpt-3.5-turbo',
+      messages: messages,
+    });
 
-      const completionText = completion.data.choices[0].message.content;
-      console.log(colors.green('Bot: ') + completionText);
-    } catch (error) {
-      console.error(colors.red(error));
-    }
+    const completionText = completion.data.choices[0].message.content;
+    console.log(colors.green('Bot: ') + completionText);
+
+  } catch (error) {
+    console.error('Error:', error);
   }
-}
+})();
 
-main();
